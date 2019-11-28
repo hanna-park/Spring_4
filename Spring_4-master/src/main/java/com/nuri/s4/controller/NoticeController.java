@@ -6,6 +6,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -30,6 +31,9 @@ public class NoticeController {
 	
 	@Inject
 	private BoardNoticeService boardNoticeService;
+	
+	@Value("${notice}")
+	private String board;
 	
 	@PostMapping(value = "summerFileDelete")
 	public ModelAndView summerFileDelete(String file, HttpSession session) throws Exception{
@@ -145,7 +149,7 @@ public class NoticeController {
 		mv.addObject("list", ar);
 		mv.addObject("pager", pager);
 		mv.addObject("PageName","Notice Board");
-		mv.addObject("board", "notice");
+		mv.addObject("board", board);
 //		BoardVO boardVO = new BoardQnaVO();
 //		BoardQnaVO boardQnaVO = (BoardQnaVO)boardVO;
 		mv.setViewName("board/boardList");
