@@ -29,7 +29,7 @@ public class BoardNoticeService implements BoardService {
 	@Inject
 	private NoticeFilesDAO noticeFilesDAO;
 	
-	@Value("${notice}")
+	@Value("#{db['notice']}")
 	private String board;
 	
 	public boolean summerFileDelete(String file, HttpSession session) throws Exception{

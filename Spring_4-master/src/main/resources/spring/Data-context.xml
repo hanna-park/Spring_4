@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+
+	
+		
+		<bean class="org.springframework.jdbc.datasource.DriverManagerDataSource" id="dataSource">
+			<property name="username" value="#{db['oracle.user']}"/>
+			<property name="password" value="#{db['oracle.password']}"/>
+			<property name="url" value="#{db['oracle.url']}"/>
+			<property name="driverClassName" value="#{db['oracle.driver']}"></property>
+		</bean>
+		
+<!-- 		my batis에게 connection과 mapper file 객체의 주소를 알려줌 -->
+		<bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactoryBean">
+			<property name="dataSource" ref="dataSource"></property>
+			<property name="mapperLocations" value="classpath:/mybatis/mappers/*Mapper.xml"></property>
+			<property name="configLocation" value="classpath:/mybatis/config/mybatisConfig.xml"></property>
+		</bean>
+		
+<!-- 		Spring - mybatis 최종 연결 -->
+		<bean class="org.mybatis.spring.SqlSessionTemplate" id="sqlSession">
+			<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactoryBean"></constructor-arg>
+		</bean>
+		
+		
+		
+		<tx:annotation-driven transaction-manager="txManager" proxy-target-class="true"/>
+
+</beans>
