@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="qnaMapper">
+  	<sql id="ds">
+  		<choose>
+			<when test="kind == 'kt'">
+				where title like '%'||#{search}||'%'
+			</when>
+			<when test="kind == 'kw'">
+				where writer like '%'||#{search}||'%'
+			</when>
+			<when test="kind == 'kc'">
+				where contents like '%'||#{search}||'%'
+			</when>
+		</choose>
+  	</sql>
+  		<update id="boardReplyUpdate" parameterType="BoardVO">
+  			update qna set step=step+1 where
+  			ref=(select ref from qna where num=#{num}) and step>(select step from qna where num=#{num})
+  		</update>
+  		
+  		<insert id="boardReply" parameterType="BoardVO">
+  			insert into qna values(board_seq.nextval, #{title}, #{writer}, #{contents}, sysdate, 0, 
+  			(select ref from qna where num=#{num}), 
+  			(select step from qna where num=#{num})+1, 
+  			(select depth from qna where num=#{num})+1)
+  		</insert>
+  
+  		<delete id="boardDelete" parameterType="QnaVO">
+  			delete qna where num = #{num}
+  		</delete>
+  
+  		<update id="boardUpdate" parameterType="QnaVO">
+  			update qna set title=#{title}, contents=#{contents} where num=#{num}
+  		</update>
+  		
+  		<resultMap type="QnaVO" id="boardFile">
+  			<id property="num" column="num"/>
+  			<result property="title" column="title" />
+    		<result property="writer" column="writer"/>
+    		<result property="contents" column="contents"/>
+    		<result property="reg_date" column="reg_date"/>
+    		<result property="hit" column="hit"/>
+    		<result property="ref" column="ref"/>
+    		<result property="step" column="step"/>
+    		<result property="depth" column="depth"/>
+    		<collection property="files" javaType="java.util.List" ofType="FilesVO" resultMap="fileResult"></collection>
+    	</resultMap>
+    	
+    	<resultMap type="FilesVO" id="fileResult">
+    		<id property="fnum" column="fnum"/>
+    		<result property="fname" column="fname"/>
+    		<result property="oname" column="oname"/>
+    	</resultMap>
+  			
+  		<select id="boardSelect" resultMap="boardFile" parameterType="QnaVO">
+  			select * from qna Q full outer join qnaFiles QF
+  			on Q.num = QF.num
+			where Q.num = #{num}
+  		</select>
+  
+      	<select id="boardCount" resultType="java.lang.Integer" parameterType="Pager">
+  			select count(num) from qna
+			<include refid="ds"></include>
+  		</select>
+    
+    	<select id="boardList" parameterType="Pager" resultType="QnaVO">
+	  		select * from
+				(select Q.*, rownum R from
+					(select * from qna 
+					<include refid="ds"></include>
+					order by ref desc, step asc) Q)
+			where R between #{startRow} and #{lastRow}
+ 	 	</select>
+ 	 	
+ 	 	<insert id="boardWrite" parameterType="BoardVO">
+ 	 	<selectKey order="BEFORE" resultType="Integer" keyProperty="num">
+ 	 		select board_seq.nextval from dual
+ 	 	</selectKey>
+			insert into qna 
+			values(#{num}, #{title}, #{writer}, #{contents}, sysdate, 0, board_seq.currval, 0, 0)
+		</insert>
+    
+    </mapper>

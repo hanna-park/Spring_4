@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+    <mapper namespace="noticeFilesMapper">
+    
+<!--     	<update id="fileUpdate" parameterType="NoticeFilesVO"> -->
+<!--     		update noticeFiles set fnum=#{fnum}, fname=#{fname}, oname=#{oname} where num=#{num} -->
+<!--     	</update> -->
+	
+		<select id="fileSelect" resultType="FilesVO" parameterType="FilesVO">
+			select * from noticefiles where fnum = #{fnum}
+		</select>
+    	
+    	<delete id="fileDelete" parameterType="FilesVO">
+    		delete noticeFiles where fnum=#{fnum}
+    	</delete>
+    
+    
+    	<insert id="fileWrite" parameterType="FilesVO">
+    		insert into noticefiles values(files_seq.nextval, #{num}, #{fname}, #{oname})
+    	</insert>
+    	
+<!--     	<select id="fileList" parameterType="Integer" resultType="NoticeFilesVO"> -->
+<!--     		select * from noticefiles where num = #{num} -->
+<!--     	</select> -->
+
+    </mapper>

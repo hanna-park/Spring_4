@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+		
+		<bean class="org.springframework.jdbc.datasource.DriverManagerDataSource" id="dataSource">
+			<property name="username" value="spring01"/>
+			<property name="password" value="spring01"/>
+			<property name="url" value="jdbc:oracle:thin:@192.168.196.3:1521:xe"/>
+			<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"></property>
+		</bean>
+		
+<!-- 		my batis에게 connection과 mapper file 객체의 주소를 알려줌 -->
+		<bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactoryBean">
+			<property name="dataSource" ref="dataSource"></property>
+			<property name="mapperLocations" value="classpath:/mybatis/mappers/*Mapper.xml"></property>
+			<property name="configLocation" value="classpath:/mybatis/config/mybatisConfig.xml"></property>
+		</bean>
+		
+<!-- 		Spring - mybatis 최종 연결 -->
+		<bean class="org.mybatis.spring.SqlSessionTemplate" id="sqlSession">
+			<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactoryBean"></constructor-arg>
+		</bean>
+		
+		<bean class="org.springframework.web.multipart.commons.CommonsMultipartResolver" id="multipartResolver">
+<!-- 		file 인코딩 설정-->
+			<property name="defaultEncoding" value="UTF-8" />
+<!-- 		file 최대 크기-->
+			<property name="maxUploadSize" value="104857600" /> <!-- 100MB(단위 bite) -->
+<!-- 		file당 크기-->
+			<property name="maxUploadSizePerFile" value="10485760" /> <!-- 10MB(단위 bite) -->
+		</bean>
+		
+		<bean class="com.nuri.s4.transfer.Card" id="card"></bean>
+			<aop:config>
+				<aop:aspect id="cardAspect" ref="card">
+					<aop:pointcut expression="execution(* com.nuri.s4.transfer.Transfer.get*(*))" id="trans"/>
+					<aop:around method="cardCheck" pointcut-ref="trans"/>
+				</aop:aspect>
+				
+				<aop:aspect id="cardAspect" ref="card">
+<!-- 					<aop:pointcut expression="execution(* com.nuri.s4.transfer.Transfer.taxi())" id="cashTrans"/> -->
+					<aop:after method="cash" pointcut="execution(* com.nuri.s4.transfer.Transfer.taxi())" />
+				</aop:aspect>					
+			</aop:config>
+
+		
+		
+</beans>
